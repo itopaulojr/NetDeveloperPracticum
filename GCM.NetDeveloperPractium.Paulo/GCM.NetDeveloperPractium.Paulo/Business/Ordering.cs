@@ -16,70 +16,93 @@ namespace GCM.NetDeveloperPractium.Paulo.Business
             this.menu = menu;
         }
 
-        public string Order(string timeOfDay, string strdishesTypeIds)
+        public string Order(string orderInput)
         {
-            string[] dishesTypesOrderIds = strdishesTypeIds.Split(',').OrderBy(x => x).ToArray();
-            var dishesTypesOrderIdsGroup = dishesTypesOrderIds.GroupBy(x => x);
-            TimeOfDay timeOfDayOrder = OrderingInputConverter.ConvertTimeOfDay(timeOfDay);
+            string[] inputArray = orderInput.Split(',').ToArray();
 
-            string resultOrder = BuildResultOrderMessage(dishesTypesOrderIdsGroup, timeOfDayOrder);
+            string timeOfDay = inputArray[0];
+            TimeOfDay? timeOfDayOrder = OrderingInputConverter.GetTimeOfDay(timeOfDay);
+
+            if (timeOfDayOrder == null)
+                return GetErrorMessage().Trim().TrimEnd(DISHES_CHAR_SEPARATOR);
+
+            string[] dishesTypesOrderIds = GetOnlyDishesTypes(inputArray);
+
+            string resultOrder = BuildResultOrderMessage(dishesTypesOrderIds, timeOfDayOrder.Value);
             return resultOrder;
         }
 
-        private string BuildResultOrderMessage(IEnumerable<IGrouping<string, string>> dishesTypesOrderIdsGroup, TimeOfDay timeOfDayOrder)
+        private string[] GetOnlyDishesTypes(string[] inputArray)
         {
-            MenuItem menuItem = null;
+            var auxInputList = inputArray.ToList();
+            if (auxInputList.Count > 0)
+                auxInputList.RemoveAt(0);
+
+            string[] dishesTypesOrderIds = auxInputList.ToArray();
+            return dishesTypesOrderIds;
+        }
+
+        private string BuildResultOrderMessage(string[] dishesTypesOrderIds, TimeOfDay timeOfDayOrder)
+        {
+            MenuItem availableMenuItem = null;
             Dish dish = null;
             string resultOrder = "";
-            string validOrderMessage = "";
-            string invalidOrderMessage = "";
+            string errorMessage = "";
+
+            var dishesTypesOrderIdsGroup = dishesTypesOrderIds.OrderBy(x => x).GroupBy(x => x);
 
             foreach (var dishTypeOrderIdGroupItem in dishesTypesOrderIdsGroup)
             {
-                DishType? dishType = OrderingInputConverter.GetToDishType(dishTypeOrderIdGroupItem.Key);
-                if (dishType == null)
+                DishType? currentDishType = OrderingInputConverter.GetToDishType(dishTypeOrderIdGroupItem.Key);
+                availableMenuItem = menu.GetMenuItem(timeOfDayOrder, currentDishType.Value);
+
+                int dishRepetition = dishTypeOrderIdGroupItem.Count();
+
+                if (!IsValidDishType(currentDishType))
                 {
-                    invalidOrderMessage += GetErrorMessage();
+                    errorMessage = GetErrorMessage();
                     continue;
                 }
 
-                menuItem = menu.GetMenuItem(timeOfDayOrder, dishType.Value);
-                if (menuItem != null)
+                if (!IsMenuItemAvailable(availableMenuItem))
                 {
-                    dish = menuItem.Dish;
-                    int dishRepetition = dishTypeOrderIdGroupItem.Count();
-                    if (dishRepetition == 1)
-                    {
-                        validOrderMessage += GetValidMessage(dish.DishTypeTitle);
-                    }
-                    else
-                    {
-                        if (menuItem.AllowMultipleOrders)
-                        {
-                            validOrderMessage += GetValidMessage(dish.DishTypeTitle, dishRepetition);
-                        }
-                        else
-                        {
-                            validOrderMessage += GetValidMessage(dish.DishTypeTitle);
-                            int invalidRepetitionsCount = dishRepetition - 1;
-                            for (int i = 0; i < invalidRepetitionsCount; i++)
-                            {
-                                invalidOrderMessage += GetErrorMessage();
-                            }
-                        }
-                    }
+                    errorMessage = GetErrorMessage();
+                    continue;
+                }
+                dish = availableMenuItem.Dish;
+
+                if (dishRepetition == 1)
+                {
+                    resultOrder += GetValidMessage(dish.DishTypeTitle);
+                    continue;
                 }
                 else
                 {
-                    invalidOrderMessage += GetErrorMessage();
+                    if (availableMenuItem.AllowMultipleOrders)
+                    {
+                        resultOrder += GetValidMessage(dish.DishTypeTitle, dishRepetition);
+                    }
+                    else
+                    {
+                        errorMessage = GetErrorMessage();
+                    }
                 }
             }
-
-            resultOrder = validOrderMessage + invalidOrderMessage;
+            resultOrder = resultOrder + errorMessage;
             resultOrder = resultOrder.Trim().TrimEnd(DISHES_CHAR_SEPARATOR);
             return resultOrder;
         }
 
+        private static bool IsValidDishType(DishType? dishType)
+        {
+            return dishType != null;
+        }
+
+        private bool IsMenuItemAvailable(MenuItem menuItem)
+        {
+            return menuItem != null;
+        }
+        
         private string GetErrorMessage()
         {
             string errorMessage = string.Format("{0}{1} ", ERROR_OUTPUT_MESSAGE, DISHES_CHAR_SEPARATOR);

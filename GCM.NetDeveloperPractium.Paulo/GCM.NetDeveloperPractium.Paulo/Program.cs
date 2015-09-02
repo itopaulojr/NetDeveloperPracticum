@@ -12,25 +12,25 @@ namespace GCM.NetDeveloperPractium.Paulo
     {
         static void Main(string[] args)
         {
-            string timeOfDay = "";
-            string strdishesTypeIds = "";
+            string input = "";
 
-            do
-            {
-                Console.Write("Please, type a valid time of day (morning or night): ");
-                timeOfDay = Console.ReadLine();
-            }
-            while (!OrderInputValidation.IsTimeOfDayInputValid(timeOfDay));
-
-            Console.Write("Please, type order types separeted by comma: ");
-            strdishesTypeIds = Console.ReadLine();
-
+            Console.WriteLine("To quit, press q.");
             IMenu menu = new MenuFactory().Create();
-            Ordering ordering = new Ordering(menu);
-            string resultMessage = ordering.Order(timeOfDay, strdishesTypeIds);
-            Console.WriteLine("Output: " + resultMessage);
-            
-            Console.ReadKey();
+
+            while (true)
+            {
+                Console.Write("Please, input your order: ");
+                input = Console.ReadLine();
+
+                if (input.ToLower() == "q")
+                {
+                    break;
+                }
+
+                Ordering ordering = new Ordering(menu);
+                string resultMessage = ordering.Order(input);
+                Console.WriteLine("Output: " + resultMessage);
+            }
         }
     }
 }

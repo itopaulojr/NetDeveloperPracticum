@@ -5,19 +5,18 @@ namespace GCM.NetDeveloperPractium.Paulo.Business.Helper
 {
     public class OrderingInputConverter
     {
-        private const string MORNING = "morning";
-        private const string NIGHT = "night";
-        private const string INVALID_INPUT_MESSAGE = "Invalid parameter, parameter should be a valid period of day.";
-        
-        public static TimeOfDay ConvertTimeOfDay(string strTimeOfDay)
+        public static TimeOfDay? GetTimeOfDay(string strTimeOfDay)
         {
-            if (strTimeOfDay.ToLower().Trim() == MORNING)
-                return TimeOfDay.MORNING;
-
-            if (strTimeOfDay.ToLower().Trim() == NIGHT)
-                return TimeOfDay.NIGHT;
-
-            throw new ArgumentException(INVALID_INPUT_MESSAGE);
+            TimeOfDay? resultTimeOfDay = null;
+            
+            foreach (TimeOfDay timeOfDay in Enum.GetValues(typeof(TimeOfDay)))
+            {
+                if (timeOfDay.ToString().ToLower().Trim() == strTimeOfDay.ToLower().Trim())
+                {
+                    return timeOfDay;
+                }
+            }
+            return resultTimeOfDay;
         }
 
         public static DishType? GetToDishType(string strDishType)

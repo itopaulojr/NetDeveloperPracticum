@@ -50,7 +50,6 @@
     <Compile Include="Business\MenuFactory.cs" />
     <Compile Include="Business\MenuItem.cs" />
     <Compile Include="Business\Ordering.cs" />
-    <Compile Include="Business\OrderInputValidation.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
