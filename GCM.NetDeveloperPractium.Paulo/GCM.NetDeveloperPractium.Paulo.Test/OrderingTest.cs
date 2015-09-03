@@ -34,6 +34,15 @@ namespace GCM.NetDeveloperPractium.Paulo.Test
         }
 
         [TestMethod]
+        public void Order_OrderMorning1223_StopAfterEgg()
+        {
+            Ordering ordering = new Ordering(new MenuFactory().Create());
+            string orderResult = ordering.Order("morning,1,2,2,3");
+
+            Assert.AreEqual(orderResult, "eggs, error");
+        }
+
+        [TestMethod]
         public void Order_OrderMorningNotApplicableDish_ShowErrorMessageAfterValidMessages()
         {
             Ordering ordering = new Ordering(new MenuFactory().Create());
@@ -50,15 +59,6 @@ namespace GCM.NetDeveloperPractium.Paulo.Test
 
             Assert.AreEqual(orderResult, "eggs, toast, coffee(x3)");
         }
-
-        [TestMethod]
-        public void Order_OrderMorningInvalidDishRepetition_ShowErrorMessage()
-        {
-            Ordering ordering = new Ordering(new MenuFactory().Create());
-            string orderResult = ordering.Order("morning,1,2,2,3");
-
-            Assert.AreEqual(orderResult, "eggs, coffee, error");
-        } 
 
         [TestMethod]
         public void Order_OrderNight1234_ShowSteakPotatoWineCake()
@@ -93,7 +93,7 @@ namespace GCM.NetDeveloperPractium.Paulo.Test
             Ordering ordering = new Ordering(new MenuFactory().Create());
             string orderResult = ordering.Order("night,1,2,2,2,3,3,3,4");
 
-            Assert.AreEqual(orderResult, "steak, potato(x3), cake, error");
+            Assert.AreEqual(orderResult, "steak, potato(x3), error");
         }
 
         [TestMethod]

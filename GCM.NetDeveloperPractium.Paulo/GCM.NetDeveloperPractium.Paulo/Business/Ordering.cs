@@ -61,13 +61,13 @@ namespace GCM.NetDeveloperPractium.Paulo.Business
                 if (!IsValidDishType(currentDishType))
                 {
                     errorMessage = GetErrorMessage();
-                    continue;
+                    break;
                 }
 
                 if (!IsMenuItemAvailable(availableMenuItem))
                 {
                     errorMessage = GetErrorMessage();
-                    continue;
+                    break;
                 }
                 dish = availableMenuItem.Dish;
 
@@ -85,6 +85,7 @@ namespace GCM.NetDeveloperPractium.Paulo.Business
                     else
                     {
                         errorMessage = GetErrorMessage();
+                        break;
                     }
                 }
             }
